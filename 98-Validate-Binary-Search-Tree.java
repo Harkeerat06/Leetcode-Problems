@@ -14,21 +14,21 @@
  * }
  */
 class Solution {
-    public boolean check(TreeNode root, long leftVal, long rightVal)
+    public boolean helper(TreeNode root, long leftParentUpper, long rightParentLower)
     {
         if(root==null)
             return true;
-
-        if(leftVal>=root.val || rightVal<=root.val)
+        
+        if(root.val >= leftParentUpper || root.val <= rightParentLower)
             return false;
         
-        boolean leftT= check(root.left, leftVal, root.val);
-        boolean rightT= check(root.right, root.val, rightVal);
+        boolean leftTree= helper(root.left, root.val, rightParentLower);
+        boolean rightTree= helper(root.right, leftParentUpper, root.val);
 
-        return leftT && rightT;
+        return leftTree && rightTree;
     }
-    
+
     public boolean isValidBST(TreeNode root) {
-        return check(root, Long.MIN_VALUE, Long.MAX_VALUE);
+        return helper(root, Integer.MAX_VALUE+1L, Integer.MIN_VALUE-1L);
     }
 }
