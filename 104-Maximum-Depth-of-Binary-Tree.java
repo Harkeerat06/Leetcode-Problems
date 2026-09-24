@@ -15,23 +15,20 @@
  */
 class Solution {
     int ans=0;
-    public void dfs(TreeNode root, int depth)
+    public void helper(TreeNode root, int depth)
     {
         if(root==null)
             return;
         
-        depth= depth+1;
-        ans= Math.max(ans, depth);
+        depth++;
+        ans= Math.max(depth, ans);
 
-        dfs(root.left, depth);
-        dfs(root.right, depth);
+        helper(root.left, depth);
+        helper(root.right, depth);
     }
 
     public int maxDepth(TreeNode root) {
-        if(root==null)
-            return 0;
-
-        dfs(root, 0);
+        helper(root, 0);
         return ans;
     }
 }
