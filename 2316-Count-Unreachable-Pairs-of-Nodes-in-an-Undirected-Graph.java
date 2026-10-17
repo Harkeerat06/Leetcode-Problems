@@ -1,55 +1,57 @@
 class Solution {
-    long count;
-
-    public void dfs(List<List<Integer>>list, boolean visit[], int node)
+    public int findParent(int node, int parent[])
     {
-        for(int i: list.get(node))
+        if(parent[node] == node)
+            return node;
+        
+        return parent[node]= findParent(parent[node], parent);
+    }
+
+    public void union(int u, int v, int parent[], int size[])
+    {
+        int rootU= findParent(u, parent);
+        int rootV= findParent(v, parent);
+
+        if(rootU == rootV)
+            return;
+        
+        if(size[rootV] > size[rootU])
         {
-            if(!visit[i])
-            {
-                count++;
-                visit[i]= true;
-                dfs(list, visit, i);
-            }
+            int temp= rootU;
+            rootU= rootV;
+            rootV= temp;
         }
+
+        parent[rootV]= rootU;
+        size[rootU]+= size[rootV];
     }
 
     public long countPairs(int n, int[][] edges) {
-        List<List<Integer>> list= new ArrayList<>();
-        boolean visited[]= new boolean[n];
+        int parent[]= new int[n];
+        int size[]= new int[n];
 
         for(int i=0; i<n; i++)
         {
-            list.add(new ArrayList<>());
+            parent[i]= i;
+            size[i]= 1;
         }
 
-        int elen= edges.length;
-        for(int i=0; i<elen; i++)
+        for(int edge[]: edges)
         {
-            int u= edges[i][0];
-            int v= edges[i][1];
-
-            list.get(u).add(v);
-            list.get(v).add(u);
+            union(edge[0], edge[1], parent, size);
         }
-        
-        long sum;
-        if(n%2==0)
-            sum= 1L*(n/2)*(n-1);
-        else
-            sum= 1L*n* ((n-1)/2);
+
+        long remaining= n;
+        long count=0;
 
         for(int i=0; i<n; i++)
         {
-            if(!visited[i])
-            {
-                count=1;
-                visited[i]= true;
-                dfs(list, visited, i);
-            }
-            sum-= count * (count-1) / 2;
-            count=0;
+            if(parent[i] != i)
+                continue;
+            
+            count+= size[i] * (remaining - size[i]);
+            remaining-= size[i];
         }
-        return sum;    
+        return count;
     }
 }
