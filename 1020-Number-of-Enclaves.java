@@ -1,48 +1,89 @@
 class Solution {
-    int count;
-
-    public boolean dfs(int arr[][], boolean visit[][], int i, int j, int n, int m)
+    public int findParent(int node, int parent[])
     {
-        if((i==0 || i==n-1 || j==0 || j==m-1) && arr[i][j]==1)
-            return false;
+        if(parent[node] == node)
+            return node;
         
-        else if(arr[i][j]==0 || visit[i][j])
-            return true;
-        
-        visit[i][j]= true;
+        return parent[node]= findParent(parent[node], parent);
+    }
 
-        boolean left= dfs(arr, visit, i, j-1, n, m);       // left
-        boolean right= dfs(arr, visit, i, j+1, n, m);      // right
-        boolean up= dfs(arr, visit, i-1, j, n, m);         // up
-        boolean down= dfs(arr, visit, i+1, j, n, m);      // down
+    public void union(int u, int v, int parent[], int size[])
+    {
+        int rootU= findParent(u, parent);
+        int rootV= findParent(v, parent);
+
+        if(rootU == rootV)
+            return;
         
-        if(left && right && up && down)
+        if(size[rootU] < size[rootV])
         {
-            count++;
-            return true;
+            int temp= rootU;
+            rootU= rootV;
+            rootV= temp;
         }
 
-        count= 0;
-        return false;
+        parent[rootV]= rootU;
+        size[rootU]+= size[rootV];
     }
 
     public int numEnclaves(int[][] grid) {
         int n= grid.length, m= grid[0].length;
-        boolean visit[][]= new boolean[n][m];
-        int land=0;
+        int boundary= n*m;
 
-        for(int i=1; i<n-1; i++)
+        int parent[]= new int[boundary + 1];
+        int size[]= new int[boundary + 1];
+
+        for(int i=0; i<=boundary; i++)
         {
-            for(int j=1; j<m-1; j++)
+            parent[i]= i;
+            size[i]= 1;
+        }
+
+        int directions[][]= {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+        for(int i=0; i<n; i++)
+        {
+            for(int j=0; j<m; j++)
             {
-                if(grid[i][j]==1 && !visit[i][j])
+                if(grid[i][j] == 0)
+                    continue;
+                
+                int id= i*m + j;
+
+                // connect boundary land to the virtual node with value= n*m
+                if(i==0 || j==0 || i==n-1 || j==m-1)
+                    union(boundary, id, parent, size);
+                
+                for(int dir[]: directions)
                 {
-                    dfs(grid, visit, i, j, n, m);
-                    land+= count;
-                    count=0;
+                    int x= i + dir[0];
+                    int y= j + dir[1];
+                    
+                    if(x<0 || x>=n || y<0 || y>=m || grid[x][y]==0)
+                        continue;
+                    
+                    int neighbourId= x*m + y;
+                    union(id, neighbourId, parent, size);
                 }
             }
         }
-        return land;
+
+        int count= 0;
+        int boundaryRoot= findParent(boundary, parent);
+
+        for (int i=0; i<n; i++) 
+        {
+            for (int j=0; j<m; j++) 
+            {
+                if(grid[i][j] == 0) 
+                    continue;
+
+                int id= i*m + j;
+
+                if(findParent(id, parent) != boundaryRoot)
+                    count++;
+            }
+        }
+        return count;
     }
 }
