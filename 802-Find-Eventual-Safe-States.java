@@ -1,25 +1,26 @@
 class Solution {
-    public boolean dfs(int[][] graph, boolean visit[], boolean isSafe[], boolean isUnsafe[], int node)
+    public boolean dfs(int node, int graph[][], boolean visit[], boolean isSafe[], boolean isUnsafe[])
     {
         if(isSafe[node])
             return false;
-        else if(isUnsafe[node] || visit[node])
+
+        if(isUnsafe[node] || visit[node])
             return true;
         
         visit[node]= true;
 
         for(int i: graph[node])
         {
-            if(dfs(graph, visit, isSafe, isUnsafe, i))
+            if(dfs(i, graph, visit, isSafe, isUnsafe))
             {
-                isUnsafe[node]= true;
+                isUnsafe[i]= true;
                 visit[node]= false;
                 return true;
             }
         }
 
-        visit[node]= false;
         isSafe[node]= true;
+        visit[node]= false;
         return false;
     }
 
@@ -27,12 +28,13 @@ class Solution {
         int n= graph.length;
         boolean isSafe[]= new boolean[n];
         boolean isUnsafe[]= new boolean[n];
-        List<Integer> list= new ArrayList<>();
         boolean visit[]= new boolean[n];
+
+        List<Integer> list= new ArrayList<>();
 
         for(int i=0; i<n; i++)
         {
-            if(!dfs(graph, visit, isSafe, isUnsafe, i))   // true if cycle found
+            if(!dfs(i, graph, visit, isSafe, isUnsafe))     // returns true if loop found
             {
                 list.add(i);
             }
