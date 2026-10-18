@@ -1,38 +1,25 @@
 class Solution {
-    int count=1;
+    int count;
 
-    public void dfs(List<List<Integer>> list, boolean visit[], int i)
+    public void dfs(int node, List<List<Integer>> list, boolean visit[])
     {
-        visit[i]= true;
+        count++;
+        visit[node]= true;
 
-        for(int j: list.get(i))
+        for(Integer i: list.get(node))
         {
-            if(!visit[j])
-            {
-                count++;
-                dfs(list, visit, j);
-            }
+            if(visit[i])
+                continue;
+            
+            dfs(i, list, visit);
         }
     }
 
-    public boolean canVisitAllRooms(List<List<Integer>> rooms) {
-        int n= rooms.size();
+    public boolean canVisitAllRooms(List<List<Integer>> list) {
+        int n= list.size();
         boolean visit[]= new boolean[n];
-        List<Integer> start= new ArrayList<>();
-
-        for(int i: rooms.get(0))
-            start.add(i);
         
-        visit[0]= true;
-
-        for(int i: start)
-        {
-            if(!visit[i])
-            {
-                count++;
-                dfs(rooms, visit, i);
-            }
-        }
+        dfs(0, list, visit);
         return count==n;
     }
 }
