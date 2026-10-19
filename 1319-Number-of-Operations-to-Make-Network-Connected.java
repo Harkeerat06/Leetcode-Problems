@@ -1,52 +1,47 @@
 class Solution {
-    int extra=0;
-
-    public void dfs(List<List<Integer>> list, boolean visit[], int node, int prev)
+    public void dfs(int node, List<List<Integer>> list, boolean visit[])
     {
         visit[node]= true;
+        List<Integer> neigh= list.get(node);
 
-        for(int i: list.get(node))
+        for(Integer i: neigh)
         {
             if(visit[i])
-            {
-                if(i!=prev)
-                    extra++;
                 continue;
-            }
-            dfs(list, visit, i, node);
+            
+            dfs(i, list, visit);
         }
     }
 
     public int makeConnected(int n, int[][] connections) {
+        if(connections.length < n-1)
+            return -1;
+        
         List<List<Integer>> list= new ArrayList<>();
         for(int i=0; i<n; i++)
-        {
             list.add(new ArrayList<>());
-        }
-
+        
         for(int arr[]: connections)
         {
             int u= arr[0];
             int v= arr[1];
 
-            list.get(u).add(v);
             list.get(v).add(u);
+            list.get(u).add(v);
         }
 
         boolean visit[]= new boolean[n];
-        int components=0;
+        int count=0;
 
         for(int i=0; i<n; i++)
         {
-            if(!visit[i])
-            {
-                components++;
-                dfs(list, visit, i, -1);
-            }
+            if(visit[i])
+                continue;
+            
+            dfs(i, list, visit);
+            count++;
         }
-        if(components>1 && components > extra)
-            return -1;
         
-        return components-1;
+        return count-1;
     }
 }
