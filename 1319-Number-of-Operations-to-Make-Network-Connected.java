@@ -1,47 +1,55 @@
 class Solution {
-    public void dfs(int node, List<List<Integer>> list, boolean visit[])
+    public int findParent(int node, int parent[])
     {
-        visit[node]= true;
-        List<Integer> neigh= list.get(node);
+        if(node == parent[node])
+            return node;
+        
+        return parent[node]= findParent(parent[node], parent);
+    }
 
-        for(Integer i: neigh)
+    public void union(int u, int v, int parent[], int size[])
+    {
+        int rootU= findParent(u, parent);
+        int rootV= findParent(v, parent);
+
+        if(size[rootU] < size[rootV])
         {
-            if(visit[i])
-                continue;
-            
-            dfs(i, list, visit);
+            int temp= rootU;
+            rootU= rootV;
+            rootV= temp;
         }
+
+        parent[rootV]= rootU;
+        size[rootU]+= size[rootV];
     }
 
     public int makeConnected(int n, int[][] connections) {
-        if(connections.length < n-1)
+        if(n-1 > connections.length)
             return -1;
-        
-        List<List<Integer>> list= new ArrayList<>();
+
+        int parent[]= new int[n];
+        int size[]= new int[n];
+
         for(int i=0; i<n; i++)
-            list.add(new ArrayList<>());
-        
+        {
+            parent[i]= i;
+            size[i]= 1;
+        }
+
         for(int arr[]: connections)
         {
             int u= arr[0];
             int v= arr[1];
 
-            list.get(v).add(u);
-            list.get(u).add(v);
+            union(u,v, parent, size);
         }
 
-        boolean visit[]= new boolean[n];
-        int count=0;
-
+        int count= 0;
         for(int i=0; i<n; i++)
         {
-            if(visit[i])
-                continue;
-            
-            dfs(i, list, visit);
-            count++;
+            if(parent[i] == i)
+                count++;
         }
-        
-        return count-1;
+        return count -1;
     }
 }
