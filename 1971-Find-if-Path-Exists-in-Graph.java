@@ -1,34 +1,45 @@
 class Solution {
-    public boolean dfs(int node, int target, List<List<Integer>> list, boolean visit[])
+    public int findParent(int node, int parent[])
     {
-        if(node == target)
-            return true;
+        if(node == parent[node])
+            return node;
         
-        visit[node]= true;
-        List<Integer> neigh= list.get(node);
+        return parent[node]= findParent(parent[node], parent);
+    }
 
-        for(int i: neigh)
+    public void union(int u, int v, int parent[], int size[])
+    {
+        int rootU= findParent(u, parent);
+        int rootV= findParent(v, parent);
+
+        if(rootU == rootV)
+            return;
+        
+        if(size[rootU] < size[rootV])
         {
-            if(visit[i])
-                continue;
-            
-            if(dfs(i, target, list, visit))
-                return true;
+            int temp= rootU;
+            rootU= rootV;
+            rootV= temp;
         }
-        return false;
+
+        parent[rootV]= rootU;
+        size[rootU]+= size[rootV];
     }
 
     public boolean validPath(int n, int[][] edges, int source, int destination) {
-        if(source==destination)
+        if(source == destination)
             return true;
-            
-        if(edges.length == 0)
+        
+        if(edges.length==0)
             return false;
 
-        List<List<Integer>> list= new ArrayList<>();
+        int parent[]= new int[n];
+        int size[]= new int[n];
+
         for(int i=0; i<n; i++)
         {
-            list.add(new ArrayList<>());
+            parent[i]= i;
+            size[i]= 1;
         }
 
         for(int arr[]: edges)
@@ -36,12 +47,12 @@ class Solution {
             int u= arr[0];
             int v= arr[1];
 
-            list.get(u).add(v);
-            list.get(v).add(u);
+            union(u, v, parent, size);
         }
 
-        boolean visit[]= new boolean[n];
+        int rootS= findParent(source, parent);
+        int rootT= findParent(destination, parent);
 
-        return dfs(source, destination, list, visit);
+        return rootS == rootT;
     }
 }
