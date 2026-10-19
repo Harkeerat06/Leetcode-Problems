@@ -1,45 +1,47 @@
 class Solution {
-    List<List<Integer>> list= new ArrayList<>();
-    public void buildAdj(int arr[][], int n)
+    public boolean dfs(int node, int target, List<List<Integer>> list, boolean visit[])
     {
-        for(int i=0; i<n; i++)
-        {
-            list.add(new ArrayList<>());
-        }
-
-        for(int i=0; i<arr.length; i++)
-        {
-            int u= arr[i][0];
-            int v= arr[i][1];
-
-            list.get(u).add(v);
-            list.get(v).add(u);
-        }
-    }
-
-    public boolean dfs(boolean visit[], int node, int end)
-    {
-        if(node == end)
+        if(node == target)
             return true;
         
         visit[node]= true;
+        List<Integer> neigh= list.get(node);
 
-        for(int i: list.get(node))
+        for(int i: neigh)
         {
-            boolean found= false;
-            if(!visit[i])
-                found= dfs(visit, i, end);
+            if(visit[i])
+                continue;
             
-            if(found)
+            if(dfs(i, target, list, visit))
                 return true;
         }
         return false;
     }
 
     public boolean validPath(int n, int[][] edges, int source, int destination) {
-        buildAdj(edges, n);
+        if(source==destination)
+            return true;
+            
+        if(edges.length == 0)
+            return false;
+
+        List<List<Integer>> list= new ArrayList<>();
+        for(int i=0; i<n; i++)
+        {
+            list.add(new ArrayList<>());
+        }
+
+        for(int arr[]: edges)
+        {
+            int u= arr[0];
+            int v= arr[1];
+
+            list.get(u).add(v);
+            list.get(v).add(u);
+        }
+
         boolean visit[]= new boolean[n];
 
-        return dfs(visit, source, destination);
+        return dfs(source, destination, list, visit);
     }
 }
