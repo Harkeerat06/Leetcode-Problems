@@ -1,49 +1,65 @@
 class Solution {
-    int edgeCount, size;
-
-    public void dfs(int node, List<List<Integer>> list, boolean visit[])
+    public int findParent(int node, int parent[])
     {
-        visit[node]= true;
-        size++;
-        List<Integer> neigh= list.get(node);
-        edgeCount+= neigh.size();
-
-        for(int i: neigh)
-        {
-            if(visit[i])
-                continue;
-
-            dfs(i, list, visit);
-        }
-    }
-    public int countCompleteComponents(int n, int[][] edges) {
-        List<List<Integer>> list= new ArrayList<>();
+        if(node == parent[node])
+            return node;
         
+        return parent[node]= findParent(parent[node], parent);
+    }
+
+    public void union(int u, int v, int parent[], int size[], int edgeCount[])
+    {
+        int rootU= findParent(u, parent);
+        int rootV= findParent(v, parent);
+
+        if(rootU == rootV)
+        {
+            edgeCount[rootU]++;
+            return;
+        }
+
+        if(size[rootU] < size[rootV])
+        {
+            int temp= rootU;
+            rootU= rootV;
+            rootV= temp;
+        }
+
+        parent[rootV]= rootU;
+        size[rootU]+= size[rootV];
+        edgeCount[rootU]+= edgeCount[rootV] + 1;
+    }
+
+    public int countCompleteComponents(int n, int[][] edges) {
+        int parent[]= new int[n];
+        int edgeCount[]= new int[n];
+        int size[]= new int[n];
+
         for(int i=0; i<n; i++)
-            list.add(new ArrayList<>());
+        {
+            parent[i]= i;
+            size[i]= 1;
+        }
 
         for(int arr[]: edges)
         {
             int u= arr[0];
             int v= arr[1];
 
-            list.get(v).add(u);
-            list.get(u).add(v);
+            union(u, v, parent, size, edgeCount);
         }
 
-        boolean visit[]= new boolean[n];
         int count=0;
-        
+
         for(int i=0; i<n; i++)
         {
-            if(visit[i])
+            if(parent[i] != i)
                 continue;
             
-            size=0;
-            edgeCount=0;
-            dfs(i, list, visit);
+            int s= size[i];
+            int ec= edgeCount[i];
 
-            if(size * (size-1) <= edgeCount)
+            if(s*(s-1)/2 == ec)
                 count++;
         }
         return count;
