@@ -1,108 +1,75 @@
 class Solution {
     HashMap<Integer, Integer> map= new HashMap<>();
-    int size=0;
+    int idArea= 0;
+    int directions[][]= {{1,0}, {0,1}, {-1,0}, {0,-1}};
 
-    public void dfs(int arr[][], int i, int j, int n, int id)
+    public void setId(int i, int j, int grid[][], int id, int n, int m)
     {
-        if(i<0 || i>=n || j<0 || j>=n || arr[i][j]!=1)
-            return;
+        grid[i][j]= id;
+        idArea++;
         
-        size++;
-        arr[i][j]= id;
-    
-        dfs(arr, i+1, j, n, id);
-        dfs(arr, i-1, j, n, id);
-        dfs(arr, i, j+1, n, id);
-        dfs(arr, i, j-1, n, id);
+        for(int dir[]: directions)
+        {
+            int x= i + dir[0];
+            int y= j + dir[1];
+
+            if(x<0 || x>=n || y<0 || y>=m || grid[x][y]!=1)
+                continue;
+            
+            setId(x, y, grid, id, n, m);
+        }
     }
 
-    public int findSize(int arr[][], int i, int j, int n)
+    public int findSize(int i, int j, int grid[][], int n, int m)
     {
-        int totalSize=0;
-        int usedId[]= new int[3];
-        boolean alreadyUsed= false;
+        int area=0;
+        HashSet<Integer> set= new HashSet<>();
 
-        // check above
-        if(i>0)
+        for(int dir[]: directions)
         {
-            totalSize+= map.getOrDefault(arr[i-1][j], 0);
-            usedId[0]= arr[i-1][j];
-        }
+            int x= i + dir[0];
+            int y= j + dir[1];
 
-        // check below
-        if(i<n-1)
-        {
-            alreadyUsed= false;
-            for(int id: usedId)
-            {
-                if(id==arr[i+1][j])
-                    alreadyUsed= true;
-            }
-            if(!alreadyUsed)
-                totalSize+= map.getOrDefault(arr[i+1][j], 0);
+            if(x<0 || x>=n || y<0 || y>=m || grid[x][y]==0 || set.contains(grid[x][y]))
+                continue;
             
-            usedId[1]= arr[i+1][j];
+            area+= map.get(grid[x][y]);
+            set.add(grid[x][y]);
         }
-        
-        // check left
-        if(j>0)
-        {
-            alreadyUsed= false;
-            for(int id: usedId)
-            {
-                if(id==arr[i][j-1])
-                    alreadyUsed= true;
-            }
-            if(!alreadyUsed)
-                totalSize+= map.getOrDefault(arr[i][j-1], 0);
-            
-            usedId[2]= arr[i][j-1];
-        }
-        
-        //check right
-        if(j<n-1)
-        {
-            alreadyUsed= false;
-            for(int id: usedId)
-            {
-                if(id==arr[i][j+1])
-                    alreadyUsed= true;
-            }
-            if(!alreadyUsed)
-                totalSize+= map.getOrDefault(arr[i][j+1], 0);
-        }
-        return totalSize+1;
+        return area+1;
     }
 
     public int largestIsland(int[][] grid) {
-        int n= grid.length;
-        int id= 2, max=0;
+        int n= grid.length, m= grid[0].length;
+        int id=2;
+        int maxArea= 0;
 
         for(int i=0; i<n; i++)
         {
-            for(int j=0; j<n; j++)
+            for(int j=0; j<m; j++)
             {
                 if(grid[i][j]==1)
                 {
-                    size=0;
-                    dfs(grid, i, j, n, id);
-                    map.put(id, size);
+                    setId(i, j, grid, id, n, m);
+                    map.put(id, idArea);
+                    maxArea= Math.max(maxArea, idArea);
+                    idArea= 0;
                     id++;
-                    max= Math.max(max, size);
                 }
             }
         }
 
+    
         for(int i=0; i<n; i++)
         {
-            for(int j=0; j<n; j++)
+            for(int j=0; j<m; j++)
             {
-                if(grid[i][j]==0)
-                {
-                    max= Math.max(max, findSize(grid, i, j, n));
-                }
+                if(grid[i][j] != 0)
+                    continue;
+                
+                maxArea= Math.max(maxArea, findSize(i, j, grid, n, m));
             }
         }
-        return max;
+        return maxArea;
     }
 }
