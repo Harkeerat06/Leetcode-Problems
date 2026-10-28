@@ -1,16 +1,13 @@
 class Solution {
     boolean cycle= false;
 
-    public void dfs(List<List<Integer>> list, boolean visit[], int node, boolean safe[])
+    public void dfs(int node, List<List<Integer>> list, boolean visit[], boolean safe[])
     {
         for(int i: list.get(node))
         {
             if(safe[i])
                 continue;
-
-            if(cycle)
-                return;
-
+            
             if(visit[i])
             {
                 cycle= true;
@@ -18,24 +15,28 @@ class Solution {
             }
 
             visit[i]= true;
-            dfs(list, visit, i, safe);
+            dfs(i, list, visit, safe);
             visit[i]= false;
+
+            if(cycle)
+                return;
+            
             safe[i]= true;
         }
     }
 
     public boolean canFinish(int numCourses, int[][] prerequisites) {
         List<List<Integer>> list= new ArrayList<>();
-        
+
         for(int i=0; i<numCourses; i++)
         {
             list.add(new ArrayList<>());
         }
 
-        for(int arr[]: prerequisites)
+        for(int pre[]: prerequisites)
         {
-            int u= arr[0];
-            int v= arr[1];
+            int u= pre[0];
+            int v= pre[1];
 
             list.get(u).add(v);
         }
@@ -45,8 +46,11 @@ class Solution {
 
         for(int i=0; i<numCourses; i++)
         {
+            if(safe[i])
+                continue;
+            
             visit[i]= true;
-            dfs(list, visit, i, safe);
+            dfs(i, list, visit, safe);
             visit[i]= false;
 
             if(cycle)
