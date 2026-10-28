@@ -1,38 +1,91 @@
 class Solution {
-    public boolean dfs(int grid1[][], int grid2[][], boolean visit[][], int i, int j, int n, int m)
+    public int findParent(int node, int parent[])
     {
-        if(i<0 || i>=n || j<0 || j>=m || visit[i][j] || grid2[i][j]==0)
-            return true;
+        if(node == parent[node])
+            return node;
         
-        boolean currOk= true;
-        if(grid1[i][j] == 0)
-            currOk= false;
-        
-        visit[i][j]= true;
+        return parent[node]= findParent(parent[node], parent);
+    }
 
-        boolean down= dfs(grid1, grid2, visit, i+1, j, n, m);
-        boolean up= dfs(grid1, grid2, visit, i-1, j, n, m);
-        boolean left= dfs(grid1, grid2, visit, i, j-1, n, m);
-        boolean right= dfs(grid1, grid2, visit, i, j+1, n, m);
+    public void union(int u, int v, int parent[], int size[], boolean valid[])
+    {
+        int rootU= findParent(u, parent);
+        int rootV= findParent(v, parent);
 
-        return currOk && left && right && up && down;     
+        if(rootU == rootV)
+            return;
+
+        if(size[rootU] < size[rootV])
+        {
+            int temp= rootU;
+            rootU= rootV;
+            rootV= temp;
+        }
+
+        parent[rootV]= rootU;
+        size[rootU]+= size[rootV];
+        valid[rootU] &= valid[rootV];
     }
 
     public int countSubIslands(int[][] grid1, int[][] grid2) {
         int n= grid1.length, m= grid1[0].length;
-        boolean visit[][]= new boolean[n][m];
-        int count=0;
+
+        // assign parent and size
+        int parent[]= new int[n*m];
+        int size[]= new int[n*m];
+        boolean valid[]= new boolean[n*m];
 
         for(int i=0; i<n; i++)
         {
             for(int j=0; j<m; j++)
             {
-                if(grid2[i][j]==1 && !visit[i][j])
+                if(grid2[i][j]==0)
+                    continue;
+
+                int id= i*m + j;
+
+                parent[id]= id;
+                size[id]= 1;
+
+                if(grid1[i][j] == 1)
+                    valid[id]= true;
+                else
+                    valid[id]= false;
+            }
+        }
+
+        // union all islands one by one
+        int directions[][]= {{0,1}, {1,0}};
+
+        for(int i=0; i<n; i++)
+        {
+            for(int j=0; j<m; j++)
+            {
+                if(grid2[i][j] == 0)
+                    continue;
+
+                int id= i*m + j;
+
+                for(int dir[]: directions)
                 {
-                    if(grid1[i][j]==1 && dfs(grid1, grid2, visit, i, j, n, m))
-                        count++;
+                    int x= i + dir[0];
+                    int y= j + dir[1];
+
+                    if(x<0 || x>=n || y<0 || y>=m || grid2[x][y]==0)
+                        continue;
+                    
+                    int neighId= x*m + y;
+
+                    union(id, neighId, parent, size, valid);
                 }
             }
+        }
+
+        int count= 0;
+        for(int i=0; i<n*m; i++)
+        {
+            if(parent[i] == i && valid[i])
+                count++;
         }
         return count;
     }
