@@ -1,45 +1,55 @@
 class Solution {
-    public int minCost(int[][] grid) {
-        int n = grid.length;
-        int m = grid[0].length;
+    int[][] moves = {{0, 1}, {1, 0}};
 
-        boolean[][][] dp = new boolean[n][m][1024];
+    boolean[][][] memo;
+    boolean[][] computed;
+    int[][] grid;
+    int n, m;
 
-        // Base case: path containing only the starting cell
-        dp[0][0][grid[0][0]] = true;
+    void dfs(int i, int j) {
+        if (computed[i][j])
+            return;
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
+        computed[i][j] = true;
 
-                // Skip the starting cell; already initialized
-                if (i == 0 && j == 0)
-                    continue;
+        // Base case: destination
+        if (i == n - 1 && j == m - 1) {
+            memo[i][j][grid[i][j]] = true;
+            return;
+        }
 
-                // Paths coming from above
-                if (i > 0) {
-                    for (int k = 0; k < 1024; k++) {
-                        if (dp[i - 1][j][k]) {
-                            int newXor = k ^ grid[i][j];
-                            dp[i][j][newXor] = true;
-                        }
-                    }
-                }
+        for (int[] dir : moves) {
+            int x = i + dir[0];
+            int y = j + dir[1];
 
-                // Paths coming from the left
-                if (j > 0) {
-                    for (int k = 0; k < 1024; k++) {
-                        if (dp[i][j - 1][k]) {
-                            int newXor = k ^ grid[i][j];
-                            dp[i][j][newXor] = true;
-                        }
-                    }
+            if (x >= n || y >= m)
+                continue;
+
+            dfs(x, y);
+
+            // Combine this cell with every possible XOR
+            // achievable from the neighboring cell.
+            for (int k = 0; k < 1024; k++) {
+                if (memo[x][y][k]) {
+                    int newXor = grid[i][j] ^ k;
+                    memo[i][j][newXor] = true;
                 }
             }
         }
+    }
 
-        // Find the minimum achievable XOR at the destination
+    public int minCost(int[][] grid) {
+        this.grid = grid;
+        n = grid.length;
+        m = grid[0].length;
+
+        memo = new boolean[n][m][1024];
+        computed = new boolean[n][m];
+
+        dfs(0, 0);
+
         for (int k = 0; k < 1024; k++) {
-            if (dp[n - 1][m - 1][k])
+            if (memo[0][0][k])
                 return k;
         }
 
