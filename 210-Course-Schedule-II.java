@@ -1,69 +1,48 @@
 class Solution {
-    boolean cycle= false;
-
-    public void dfs(int node, List<List<Integer>> list, boolean visit[], boolean safe[], Stack<Integer> stack)
-    {
-        for(int i: list.get(node))
-        {
-            if(safe[i])
-                continue;
-
-            if(visit[i])
-            {
-                cycle= true;
-                return;
-            }
-            
-            visit[i]= true;
-            dfs(i, list, visit, safe, stack);
-            visit[i]= false;
-
-            if(cycle)
-                return;
-            
-            safe[i]= true;
-        }
-        stack.push(node);
-    }
-
     public int[] findOrder(int n, int[][] prereq) {
         List<List<Integer>> list= new ArrayList<>();
-
+        int indegree[]= new int[n];
+        
         for(int i=0; i<n; i++)
             list.add(new ArrayList<>());
 
-        for(int arr[]: prereq)
+        for(int pre[]: prereq)
         {
-            int u= arr[0];
-            int v= arr[1];
+            int course= pre[0];
+            int prerequisite= pre[1];
 
-            list.get(v).add(u);
+            list.get(prerequisite).add(course);
+            indegree[course]++;
         }
 
-        boolean visit[]= new boolean[n];
-        boolean safe[]= new boolean[n];
-        Stack<Integer> stack= new Stack<>();
+        Queue<Integer> q= new LinkedList<>();
 
         for(int i=0; i<n; i++)
         {
-            if(safe[i])
-                continue;
-            
-            visit[i]= true;
-            dfs(i, list, visit, safe, stack);
-            visit[i]= false;
-
-            if(cycle)
-                return new int[]{};
-
-            safe[i]= true; 
+            if(indegree[i] == 0)
+                q.offer(i);
         }
 
         int ans[]= new int[n];
-        for(int i=0; i<n; i++)
+        int index=0, visited=0;
+
+        while(!q.isEmpty())
         {
-            ans[i]= stack.pop();
+            int node= q.poll();
+            ans[index++]= node;
+            visited++;
+
+            for(int i: list.get(node))
+            {
+                indegree[i]--;
+            
+                if(indegree[i] == 0)    
+                    q.offer(i);
+            }
         }
+        if(visited!=n)
+            return new int[]{};
+        
         return ans;
     }
 }
