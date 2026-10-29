@@ -1,57 +1,43 @@
 class Solution {
-    public List<Boolean> checkIfPrerequisite(int numCourses, int[][] prerequisites, int[][] queries) {
-        List<List<Integer>> list= new ArrayList<>();
-        int inDeg[]= new int[numCourses];
+    public boolean dfs(int start, int dest, List<List<Integer>> list, boolean visit[])
+    {
+        if(start == dest)
+            return true;
+        
+        visit[start]= true;
 
-        for(int i=0; i<numCourses; i++)
+        for(int i: list.get(start))
         {
-            list.add(new ArrayList<>());
+            if(!visit[i] && dfs(i, dest, list, visit))
+                return true;
         }
+        return false;
+    }
 
-        for(int arr[]: prerequisites)
+    public List<Boolean> checkIfPrerequisite(int n, int[][] prereq, int[][] queries) {
+        List<List<Integer>> list= new ArrayList<>();
+
+        for(int i=0; i<n; i++)
+            list.add(new ArrayList<>());
+
+        for(int pre[]: prereq)
         {
-            int u= arr[0];
-            int v= arr[1];
+            int u= pre[0];
+            int v= pre[1];
 
-            inDeg[v]++;
             list.get(u).add(v);
         }
 
-        Queue<Integer> q= new LinkedList<>();
-        Map<Integer, HashSet<Integer>> map= new HashMap<>();
-
-        for(int i=0; i<numCourses; i++)
-        {
-            map.put(i, new HashSet<Integer>());
-            if(inDeg[i]==0)
-                q.offer(i);
-        }
-
-
-        while(!q.isEmpty())
-        {
-            int node= q.poll();
-
-            for(int i: list.get(node))
-            {
-                map.get(i).add(node);
-                map.get(i).addAll(map.get(node));
-                inDeg[i]--;
-
-                if(inDeg[i]==0)
-                    q.offer(i);
-            }
-        }
-
-        int qlen= queries.length;
         List<Boolean> ans= new ArrayList<>();
-
-        for(int i=0; i<qlen; i++)
+        boolean visit[];
+        
+        for(int q[]: queries)
         {
-            int u= queries[i][0];
-            int v= queries[i][1];
+            visit= new boolean[n];
+            int start= q[0];
+            int dest= q[1];
 
-            if(map.get(v).contains(u))
+            if(dfs(start, dest, list, visit))
                 ans.add(true);
             else
                 ans.add(false);
