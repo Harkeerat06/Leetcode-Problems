@@ -37,7 +37,7 @@ class Solution {
             int u= arr[0];
             int v= arr[1];
 
-            list.get(u).add(v);
+            list.get(v).add(u);
         }
 
         boolean visit[]= new boolean[n];
@@ -60,7 +60,7 @@ class Solution {
         }
 
         int ans[]= new int[n];
-        for(int i=n-1; i>=0; i--)
+        for(int i=0; i<n; i++)
         {
             ans[i]= stack.pop();
         }
