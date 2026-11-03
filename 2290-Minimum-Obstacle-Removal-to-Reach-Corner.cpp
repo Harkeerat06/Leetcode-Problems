@@ -8,12 +8,12 @@ class Solution {
             Arrays.fill(obsCount[i], Integer.MAX_VALUE);
         obsCount[0][0]= 0;
 
-        PriorityQueue<int[]> pq= new PriorityQueue<>((a,b) -> Integer.compare(a[2], b[2]));
-        pq.offer(new int[]{0, 0, 0});
+        Deque<int[]> dq= new ArrayDeque<>();
+        dq.offer(new int[]{0, 0, 0});
 
-        while(!pq.isEmpty())
+        while(!dq.isEmpty())
         {
-            int arr[]= pq.poll();
+            int arr[]= dq.poll();
             int i= arr[0], j= arr[1];
             int wallCount= arr[2];
 
@@ -33,7 +33,10 @@ class Solution {
                 if(newWallCount < obsCount[x][y])
                 {
                     obsCount[x][y]= newWallCount;
-                    pq.offer(new int[]{x, y, newWallCount});
+                    if(grid[x][y]==1)
+                        dq.offerLast(new int[]{x, y, newWallCount});
+                    else
+                        dq.offerFirst(new int[]{x,y, newWallCount});
                 }
             }
         }
